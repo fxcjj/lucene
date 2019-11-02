@@ -1,20 +1,19 @@
 package com.vic;
 
-import static org.junit.Assert.assertTrue;
-
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.FieldType;
+import org.apache.lucene.store.FSDirectory;
 import org.junit.Test;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 
 /**
  * Unit test for simple App.
  */
-public class AppTest 
-{
-    /**
-     * Rigorous Test :-)
-     */
-    @Test
-    public void shouldAnswerWithTrue()
-    {
-        assertTrue( true );
-    }
+public class AppTest  {
+
+
 }
