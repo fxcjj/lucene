@@ -12,15 +12,18 @@ Digest
 4. Test3和Test31说明
     a) 生成索引、查询索引
     b) 删除文档在合并前、删除文档在合并后
-    c) 更新文档 TODO
-    d) 遍历整个文档 TODO
-    e) 文档域加权
+    c) 更新文档，是有限制的！
+        1) 设置Term的Field类型必须为字符串类型
+        2) 如果是int类型，必须先删除后创建
+        3) 参考Test3#testUpdate()
+    d) 文档域加权，比如boss
 5. Test4说明
-
+    a) 对特定项搜索，如：按content包含hello查询
+    b) 使用查询表达式QueryParser搜索，支持or,and,~等
+    c) 指定数字范围搜索，如：按id范围
+    d) 指定字符串开头搜索，如：按city以sh开头
+    e) 多条件查询（即组合查询），如：查询id在1到2之间，并且以s开头的city
 
 Reference
 https://www.jianshu.com/p/48aad01ebc7c
-https://blog.csdn.net/eson_15/article/details/51792910
-https://blog.csdn.net/eson_15/article/details/51802981
-https://blog.csdn.net/eson_15/article/details/51798774
-https://blog.csdn.net/eson_15/article/details/51802974
+https://blog.csdn.net/eson_15/article/category/6301481

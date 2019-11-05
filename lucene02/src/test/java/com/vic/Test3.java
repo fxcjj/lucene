@@ -3,10 +3,7 @@ package com.vic;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.cn.smart.SmartChineseAnalyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.document.StringField;
-import org.apache.lucene.document.TextField;
+import org.apache.lucene.document.*;
 import org.apache.lucene.index.*;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.*;
@@ -30,6 +27,7 @@ public class Test3 {
 
     // 测试数据
     private String ids[] = {"1", "2", "3"}; //用来标识文档
+//    private Integer ids[] = {1, 2, 3}; //用来标识文档
     private String citys[] = {"shanghai", "nanjing", "qingdao"};
     private String descs[] = {
             "Shanghai is a bustling city.",
@@ -43,6 +41,7 @@ public class Test3 {
         IndexWriter writer = getWriter(); //获取写索引的实例
         for(int i = 0; i < ids.length; i++) {
             Document doc = new Document();
+//            doc.add(new IntField("id", ids[i], Field.Store.YES));
             doc.add(new StringField("id", ids[i], Field.Store.YES));
             doc.add(new StringField("city", citys[i], Field.Store.YES));
             doc.add(new TextField("descs", descs[i], Field.Store.NO));
@@ -53,7 +52,7 @@ public class Test3 {
 
     // 获取IndexWriter实例
     private IndexWriter getWriter() throws Exception {
-        dir = FSDirectory.open(Paths.get("D:\\lucene\\03"));
+        dir = FSDirectory.open(Paths.get("D:\\lucene\\02"));
         Analyzer analyzer = new StandardAnalyzer(); //标准分词器，会自动去掉空格啊，is a the等单词
         IndexWriterConfig config = new IndexWriterConfig(analyzer); //将标准分词器配到写索引的配置中
         IndexWriter writer = new IndexWriter(dir, config); //实例化写索引对象
@@ -69,34 +68,30 @@ public class Test3 {
     }
 
     /**
-     * TODO 遍历整个文档
+     * 以id遍历整个文档
      * @throws Exception
      */
-    public void print() throws Exception {
-        String field = "content";
-        String queryStr = "内容";
+    @Test
+    public void iter() throws Exception {
 
         // 读取索引
-        IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get("D:\\lucene\\03")));
+        IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get("D:\\lucene\\02")));
 
         // 索引查询器
         IndexSearcher searcher = new IndexSearcher(reader);
 
-        Analyzer analyzer = new SmartChineseAnalyzer();
-        QueryParser parser = new QueryParser(field, analyzer);
-        Query query = parser.parse(queryStr);
+        PrefixQuery prefixQuery = new PrefixQuery(new Term("city", "s"));
+        TopDocs hits = searcher.search(prefixQuery, 10);
 
-        TopDocs topDocs = searcher.search(query, 10);
+        System.out.println("匹配到" + hits.totalHits + "条文档");
 
-        // 遍历结果
-        for (ScoreDoc scoreDoc : topDocs.scoreDocs) {
-            Document doc = searcher.doc(scoreDoc.doc);
-            System.out.println("doc: " + doc);
+        for (ScoreDoc score : hits.scoreDocs) {
+            Document doc = searcher.doc(score.doc);
+            System.out.println(doc.get("id") + ", " + doc.get("city") + ", " + doc.get("desc"));
         }
+
         reader.close();
     }
-
-    /*****************************************************/
 
     /**
      * 3. 更新文档
@@ -107,15 +102,20 @@ public class Test3 {
         IndexWriter writer = getWriter();
         // 新建一个Document
         Document doc = new Document();
-        // TODO 什么意思？
-        doc.add(new StringField("id", ids[1], Field.Store.YES));
+//        doc.add(new IntField("id", 5, Field.Store.YES));
+        doc.add(new StringField("id", "5", Field.Store.YES));
         doc.add(new StringField("city", "shanghai22", Field.Store.YES));
         doc.add(new TextField("descs", "shanghai update", Field.Store.NO)); // Field.Store.NO 没存到索引文件中
 
-        // 将原来id为1对应的文档，用新建的文档替换
+        /**
+         * 将原来id为1对应的文档，用新建的文档替换
+         * 注意：当标识id为字符串类型时，替换成功，id也替换了!!!
+         * 当标识id为整型时，先删除再创建
+         */
         writer.updateDocument(new Term("id", "1"), doc);
         writer.close();
-        System.out.println(doc.getField("descs"));
+
+        iter();
     }
 
     /**

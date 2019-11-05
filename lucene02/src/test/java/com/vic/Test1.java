@@ -45,7 +45,7 @@ public class Test1 {
     public void searchIndexDB() throws Exception {
 
         // 要查询字符串
-        String queryStr = "retract";
+        String queryStr = "around";
 
         // 打开索引目录
         IndexReader indexReader = DirectoryReader.open(FSDirectory.open(Paths.get(indexDir)));
