@@ -34,6 +34,7 @@ public class Test3 {
             "Nanjing is a city of culture.",
             "Qingdao is a beautiful city"
     };
+    private Long population[] = {6000L, 3000L, 4000L};
 
     // 生成索引
     @Test
@@ -45,6 +46,10 @@ public class Test3 {
             doc.add(new StringField("id", ids[i], Field.Store.YES));
             doc.add(new StringField("city", citys[i], Field.Store.YES));
             doc.add(new TextField("descs", descs[i], Field.Store.NO));
+            // 如果单单使用LongField，排序查询时报错，要把这个索引字段添加到DocValuesField中
+            doc.add(new LongField("population", population[i], Field.Store.YES));
+            // 排序专门使用
+            doc.add(new NumericDocValuesField("population", population[i]));
             writer.addDocument(doc); //添加文档
         }
         writer.close(); //close了才真正写到文档中
@@ -52,7 +57,7 @@ public class Test3 {
 
     // 获取IndexWriter实例
     private IndexWriter getWriter() throws Exception {
-        dir = FSDirectory.open(Paths.get("D:\\lucene\\02"));
+        dir = FSDirectory.open(Paths.get("D:\\lucene\\lucene02"));
         Analyzer analyzer = new StandardAnalyzer(); //标准分词器，会自动去掉空格啊，is a the等单词
         IndexWriterConfig config = new IndexWriterConfig(analyzer); //将标准分词器配到写索引的配置中
         IndexWriter writer = new IndexWriter(dir, config); //实例化写索引对象
@@ -119,34 +124,6 @@ public class Test3 {
     }
 
     /**
-     * 关键字查询
-     * @throws IOException
-     */
-    @Test
-    public void testTermQuery() throws IOException {
-        /**************** 查询 *****************/
-        IndexReader indexReader = DirectoryReader.open(FSDirectory.open(Paths.get("D:\\lucene\\03")));
-
-        IndexSearcher indexSearcher = new IndexSearcher(indexReader);
-
-        String searchField = "city";
-        String queryStr = "shanghai22";
-
-        Term term = new Term(searchField, queryStr);
-        Query query = new TermQuery(term);
-
-        TopDocs hits = indexSearcher.search(query, 10);
-        System.out.println("匹配" + queryStr + "总共查询到" + hits.totalHits + "个文档");
-        for(ScoreDoc score : hits.scoreDocs) {
-            Document doc = indexSearcher.doc(score.doc);
-            System.out.println(doc.get("id") + ", " + doc.get("city")); // 打印对应的id
-        }
-        indexReader.close();
-    }
-
-
-
-    /**
      * 2. 测试删除文档
      * 2.2 在合并后
      * note: 测试完合并前删除，要删除目录下的所有索引文件，重新调用index方法生成
@@ -173,8 +150,8 @@ public class Test3 {
     public void testDeleteBeforeMerge() throws Exception {
         IndexWriter writer = getWriter();
         System.out.println("删除前有" + writer.numDocs() + "个文档");
-        writer.deleteDocuments(new Term("id", "1")); //删除id=1对应的文档
-        writer.commit(); //提交删除,并没有真正删除
+        writer.deleteDocuments(new Term("id", "1")); // 删除id=1对应的文档
+        writer.commit(); // 提交删除,并没有真正删除
         System.out.println("删除后最大文档数：" + writer.maxDoc());
         System.out.println("删除后实际文档数：" + writer.numDocs());
         writer.close();
