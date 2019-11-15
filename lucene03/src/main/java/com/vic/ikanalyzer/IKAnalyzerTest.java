@@ -34,7 +34,7 @@ public class IKAnalyzerTest {
          * 分析器IKAnalyzer4Lucene7和分词器IKTokenizer4Lucene7
          */
         // IKAnalyzer 细粒度切分
-        try (Analyzer ik = new IKAnalyzer4Lucene7();) {
+        try (Analyzer ik = new IKAnalyzer4Lucene7()) {
             TokenStream ts = ik.tokenStream("content", etext);
             System.out.println("IKAnalyzer中文分词器 细粒度切分，英文分词效果：");
             doToken(ts);
@@ -44,7 +44,7 @@ public class IKAnalyzerTest {
         }
 
         // IKAnalyzer 智能切分
-        try (Analyzer ik = new IKAnalyzer4Lucene7(true);) {
+        try (Analyzer ik = new IKAnalyzer4Lucene7(true)) {
             TokenStream ts = ik.tokenStream("content", etext);
             System.out.println("IKAnalyzer中文分词器 智能切分，英文分词效果：");
             doToken(ts);

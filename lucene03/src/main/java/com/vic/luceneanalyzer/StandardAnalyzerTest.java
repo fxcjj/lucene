@@ -8,7 +8,7 @@ import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import java.io.IOException;
 
 /**
- * Lucene core模块中的 StandardAnalyzer英文分词器使用
+ * Lucene core模块中的 StandardAnalyzer 英文分词器使用
  * 英文分词效果好，中文分词效果不好
  */
 public class StandardAnalyzerTest {
@@ -28,7 +28,7 @@ public class StandardAnalyzerTest {
         String etext = "Analysis is one of the main causes of slow indexing. Simply put, the more you analyze the slower analyze the indexing (in most cases).";
         String chineseText = "张三说的确实在理。";
         // Lucene core模块中的 StandardAnalyzer 英文分词器
-        try (Analyzer ana = new StandardAnalyzer();) {
+        try (Analyzer ana = new StandardAnalyzer()) {
             TokenStream ts = ana.tokenStream("coent", etext);
             System.out.println("标准分词器，英文分词效果：");
             doToken(ts);
